@@ -1,0 +1,23 @@
+{
+ "when": "2026-10-10T14:25:15+03:00",
+ "final": true,
+ "pool": 4321,
+ "train": 3408,
+ "fold0": 855,
+ "gold": 58,
+ "train_expected": 3408,
+ "fold0_expected": 855,
+ "gold_expected": 58,
+ "not_finished": 0,
+ "failed": {},
+ "failed_by_group": {
+  "train": 0,
+  "fold0": 0,
+  "gold": 0
+ },
+ "train_cands_min": 231,
+ "train_cands_lt64": 0,
+ "eval1_windows_fold0_sum": 427072,
+ "eval1_windows_gold_sum": 35148,
+ "train_windows_per_epoch_at_64": 218112
+}

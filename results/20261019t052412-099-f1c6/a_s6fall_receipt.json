@@ -1,0 +1,192 @@
+{
+ "mode": "validation",
+ "rows": 3,
+ "weights": {
+  "public": 0.8,
+  "s6fall": 0.2
+ },
+ "unreadable": 0,
+ "k1_solo_sha256": "00031c5337550d13acaf2e8dbf8743e260169d93da64296d479f2c0fb0c0d6b0",
+ "spearman_vs_public": {
+  "s6fall": {
+   "ACL": 1.0,
+   "MCL": 1.0,
+   "Medial Meniscus": 1.0,
+   "Lateral Meniscus": 0.5,
+   "Medial OA": 0.5,
+   "Lateral OA": 1.0,
+   "PF OA": 0.5,
+   "Effusion": 1.0,
+   "Synovitis": 1.0,
+   "Baker's": 1.0,
+   "Contusion": 0.5,
+   "Fracture": 0.5
+  }
+ },
+ "gpu_used_mib_before_a": {
+  "0": 0,
+  "1": 0
+ },
+ "part_b": {
+  "fired": false,
+  "reason": ""
+ },
+ "margins": [
+  {
+   "stage": "s6fall_b",
+   "end_h": 0.036,
+   "r6_deadline_margin_h": 8.264,
+   "part_b_cutoff_margin_h": 8.164
+  },
+  {
+   "stage": "raptor384",
+   "end_h": 0.044,
+   "r6_deadline_margin_h": 8.256,
+   "part_b_cutoff_margin_h": 8.156
+  },
+  {
+   "stage": "raptor224",
+   "end_h": 0.051,
+   "r6_deadline_margin_h": 8.249,
+   "part_b_cutoff_margin_h": 8.149
+  },
+  {
+   "stage": "r6",
+   "end_h": 0.148,
+   "r6_deadline_margin_h": 8.152,
+   "part_b_cutoff_margin_h": 8.052
+  },
+  {
+   "stage": "blend_stack",
+   "end_h": 0.148,
+   "r6_deadline_margin_h": 8.152,
+   "part_b_cutoff_margin_h": 8.052
+  },
+  {
+   "stage": "part_b",
+   "end_h": 0.156,
+   "r6_deadline_margin_h": 8.144,
+   "part_b_cutoff_margin_h": 8.044
+  }
+ ],
+ "timings": {
+  "s6fall_b": {
+   "driver_steps": {
+    "env": 23.66056752204895,
+    "inputs": 3.823265790939331,
+    "b_probe": 31.28319549560547,
+    "b": 66.03080606460571
+   },
+   "wall": 125.31919431686401,
+   "since_t0": 130.7505624294281
+  },
+  "a": {
+   "raptor384": 28.039403200149536,
+   "raptor224": 23.82880210876465,
+   "r6": 350.781436920166,
+   "blend_stack": 0.6266252994537354,
+   "part_b": 27.76624345779419,
+   "save_members": 0.030809879302978516,
+   "total": 562.3091261386871
+  },
+  "total": 567.4721732139587
+ },
+ "submission_head": [
+  {
+   "StudyInstanceUID": "1.2.826.0.1.3680043.8.498.10047035057544427318018579121635276191",
+   "ACL": 0.3333333333333333,
+   "MCL": 0.6666666666666666,
+   "Medial Meniscus": 1.0,
+   "Lateral Meniscus": 0.6,
+   "Medial OA": 0.6,
+   "Lateral OA": 0.3333333333333333,
+   "PF OA": 0.3333333333333333,
+   "Effusion": 1.0,
+   "Synovitis": 0.6666666666666666,
+   "Baker's": 1.0,
+   "Contusion": 0.6,
+   "Fracture": 0.4
+  },
+  {
+   "StudyInstanceUID": "1.2.826.0.1.3680043.8.498.10062861783145312629332250977456991776",
+   "ACL": 1.0,
+   "MCL": 1.0,
+   "Medial Meniscus": 0.6666666666666666,
+   "Lateral Meniscus": 0.4,
+   "Medial OA": 0.4,
+   "Lateral OA": 1.0,
+   "PF OA": 0.9333333333333333,
+   "Effusion": 0.6666666666666666,
+   "Synovitis": 1.0,
+   "Baker's": 0.6666666666666666,
+   "Contusion": 1.0,
+   "Fracture": 1.0
+  },
+  {
+   "StudyInstanceUID": "1.2.826.0.1.3680043.8.498.10067514707072572280263481548497591402",
+   "ACL": 0.6666666666666666,
+   "MCL": 0.3333333333333333,
+   "Medial Meniscus": 0.3333333333333333,
+   "Lateral Meniscus": 1.0,
+   "Medial OA": 1.0,
+   "Lateral OA": 0.6666666666666666,
+   "PF OA": 0.7333333333333334,
+   "Effusion": 0.3333333333333333,
+   "Synovitis": 0.3333333333333333,
+   "Baker's": 0.3333333333333333,
+   "Contusion": 0.4,
+   "Fracture": 0.6
+  }
+ ],
+ "blend": {
+  "rows": 3,
+  "weights": {
+   "public": 0.8,
+   "s6fall": 0.2
+  },
+  "unusable": {
+   "s6fall": 0
+  },
+  "spearman_vs_public": {
+   "s6fall": {
+    "ACL": 1.0,
+    "MCL": 1.0,
+    "Medial Meniscus": 1.0,
+    "Lateral Meniscus": 0.5,
+    "Medial OA": 0.5,
+    "Lateral OA": 1.0,
+    "PF OA": 0.5,
+    "Effusion": 1.0,
+    "Synovitis": 1.0,
+    "Baker's": 1.0,
+    "Contusion": 0.5,
+    "Fracture": 0.5
+   }
+  },
+  "rank_basis": "percentile ranks, ties averaged: public over all studies, each member over its usable studies; an unusable study's member weight goes to public"
+ },
+ "s6fall_b": {
+  "studies": 3,
+  "parts": [
+   2,
+   1
+  ],
+  "retry": null,
+  "fail_cap": 0,
+  "probs_sha256": "7975394db4e24073d0150ab0a9195f5c1dc117325f6cc6872f666b17bf5e28ab",
+  "k1_solo_sha256": "00031c5337550d13acaf2e8dbf8743e260169d93da64296d479f2c0fb0c0d6b0",
+  "unreadable": [],
+  "failed_reasons": {},
+  "budget_s": 9000.0,
+  "timings": {
+   "driver_steps": {
+    "env": 23.66056752204895,
+    "inputs": 3.823265790939331,
+    "b_probe": 31.28319549560547,
+    "b": 66.03080606460571
+   },
+   "wall": 125.31919431686401,
+   "since_t0": 130.7505624294281
+  }
+ }
+}

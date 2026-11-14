@@ -1,0 +1,4 @@
+# Optional: report-to-label extraction on a CUDA machine.
+-r requirements.txt
+vllm
+

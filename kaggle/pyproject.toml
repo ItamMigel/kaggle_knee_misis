@@ -1,0 +1,11 @@
+[project]
+name = "rsna-knee-kaggle-tools"
+version = "0.1.0"
+description = "Хостовые инструменты работы с каглом: пуш сурсов, запуск кернелов, фетч, сабмит, ресёрч"
+requires-python = ">=3.10"
+# Зависимости хостовых скриптов; окружение моделей описано в ../requirements.txt.
+dependencies = ["httpx", "kaggle>=1.7.4.5", "kagglesdk", "nbformat", "numpy", "pandas", "pydantic", "python-dotenv", "rich", "scikit-learn"]
+
+[tool.uv]
+# Сам этот проект — не пакет, а просто набор скриптов в kaggle/.
+package = false

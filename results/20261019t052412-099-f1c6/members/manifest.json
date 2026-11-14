@@ -1,0 +1,83 @@
+{
+ "rows": 3,
+ "labels": [
+  "ACL",
+  "MCL",
+  "Medial Meniscus",
+  "Lateral Meniscus",
+  "Medial OA",
+  "Lateral OA",
+  "PF OA",
+  "Effusion",
+  "Synovitis",
+  "Baker's",
+  "Contusion",
+  "Fracture"
+ ],
+ "weights": {
+  "raptor": 0.5,
+  "ours": 0.5,
+  "raptor_per_class": {
+   "Medial OA": 0.5,
+   "Lateral OA": 0.15,
+   "PF OA": 0.65,
+   "Synovitis": 0.85,
+   "Baker's": 0.3
+  },
+  "a224": 0.35,
+  "reader": 0.15,
+  "reader_per_target": {
+   "Baker's": 0.035,
+   "Contusion": 0.03,
+   "Medial OA": 0.025,
+   "ACL": 0.025,
+   "Medial Meniscus": 0.02,
+   "MCL": 0.02,
+   "Lateral Meniscus": 0.008,
+   "Fracture": 0.008,
+   "Lateral OA": 0.008,
+   "PF OA": 0.008,
+   "Effusion": 0.004,
+   "Synovitis": 0.003
+  },
+  "part_b_fired": false
+ },
+ "members": {
+  "raptor384": {
+   "prob": "raptor384_prob.csv",
+   "rank": "raptor384_rank.csv",
+   "failed": 0,
+   "failed_ids": []
+  },
+  "raptor224": {
+   "prob": "raptor224_prob.csv",
+   "rank": "raptor224_rank.csv",
+   "failed": 0,
+   "failed_ids": []
+  },
+  "r6": {
+   "prob": "r6_prob.csv",
+   "rank": "r6_rank.csv",
+   "failed": 0,
+   "failed_ids": []
+  },
+  "reader": {
+   "prob": "reader_prob.csv",
+   "rank": "reader_rank.csv",
+   "failed": 0,
+   "failed_ids": []
+  },
+  "stack": {
+   "prob": "stack_prob.csv",
+   "rank": "stack_rank.csv",
+   "failed": 0,
+   "failed_ids": []
+  },
+  "final": {
+   "prob": "final_prob.csv",
+   "rank": "final_rank.csv",
+   "failed": 0,
+   "failed_ids": []
+  }
+ }
+}
