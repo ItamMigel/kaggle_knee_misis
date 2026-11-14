@@ -5,27 +5,6 @@
 # 0.949 CoAtNet, used only for a study the ConvNeXt cannot read). Version 1 scored 0.950 reading the same files from a private
 # bundle; from version 2 every file is read from these public datasets and checked against the scored sha256 before use.
 # Write-up: https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/749359
-"""K1: per-finding percentile-rank blend, final = 0.7 x rank(A) + 0.3 x rank(B), ties averaged (= gate_score.rank_blend).
-
-A = the scored 0.949 single model (submission 56906959): its kernel source, sha256 bcd864cb...79c5, is embedded below byte for
-    byte and run UNCHANGED as its own process.  Its /kaggle/working/submission.csv is moved into k1/A/ the moment the process
-    exits, so a single-model file can never be left where Kaggle would score it.
-B = S6F0 (convnext_small, v4 views placed by the SKM-TEA anatomy V-Net, blendjev labels): Heliosli's compact_infer.py (sha256
-    34f433fe..., unchanged) through a launcher equal to S6F0/infer_s6f0.py, with the laptop OOF arguments; one process per GPU.
-    The one deliberate argument difference: --amp fp16 (laptop bf16), because the T4 (sm_75) has no bf16 (see PREREG_K1.md).
-Every component failure, missing study, non-finite value or receipt mismatch is a HARD ERROR: submission.csv is deleted, a
-reason is written to k1/k1_error.json and the kernel raises.  There is no fallback to one component.  Two capped per-study
-allowances, both the deployed kernels' own behaviour (PREREG_K1.md section 5): A's internal fallbacks (<= max(3, 1 % of N)) and,
-on the hidden test only (N >= 100), B studies that still fail after the retry (<= max(3, 0.25 % of N)); such a row takes
-rank(A) (the 0.954 notebook's rule).  Above either cap: hard error.
-Budgets: A gets A_TIMEOUT_S per attempt, with one retry after a stall (log silent for A_STALL_S) or a timeout when guard time
-allows; A can never eat into B's floor B_TIMEOUT_S; B gets everything the guard has left (minus END_SLACK_S).
-Hang guard: a watchdog thread kills every child process group, deletes submission.csv and _exit(1)s at GUARD_S; a C-level
-faulthandler.dump_traceback_later backstop fires BACKSTOP_EXTRA_S later in case the interpreter is wedged.
-MODE "parity" (a separate private kernel) first runs B on PARITY_IDS (60 seeded fold-0 TRAIN studies, every series intact) with a
-pixel-hash dump, then the normal path on the public test studies (B there with the same dump).  Built from k1_kernel_template.py
-by build_k1.py, which bakes K1_BUILD_ID: every receipt (k1_receipt.json / k1_error.json) echoes it with this execution's own
-identity, so the downloaded evidence can be bound to the pushed source (PREREG_K1.md section 4, provenance)."""
 MODE = "submit"   # "submit" (nartaa/rsna-knee-k1-0949-s6f0-blend) or "parity" (nartaa/rsna-knee-k1-s6f0-parity)
 K1_BUILD_ID = "2026-10-12T10:12:34+03:00/f0d87208a3de20a5ac936388bfd763799d6391833fea3a4f90ec6de14ef5051b"   # "<build time>/<sha256(build time + newline + this file with this value as the placeholder)>"
 

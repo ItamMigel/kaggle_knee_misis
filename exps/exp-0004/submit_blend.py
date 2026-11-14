@@ -1,4 +1,4 @@
-"""exp-0004 blend kernel: our members (exp-0004, exp-0005) in a child process + public notebook A v7 (run_public) -> per-target rank blend;
+"""exp-0004 blend kernel: our members (exp-0004, exp-0005) in a child process + component A (run_public) -> per-target rank blend;
 OWN_ONLY: our members alone, run_public skipped.
 
     uv run --project kaggle python kaggle/run_kernel.py --exp exp-0004 --script submit_blend --accelerator t4 \

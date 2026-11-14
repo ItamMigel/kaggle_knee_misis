@@ -1,7 +1,4 @@
-"""Macro ROC AUC over the 12 findings and its study-level bootstrap CI.
-
-`macro_auc` is ported as-is from goodpjw's `train.py` (goodpjw2008/rsna-knee-2-5d-convnext-reader).
-"""
+"""Macro ROC AUC over the 12 findings and its study-level bootstrap CI."""
 import numpy as np
 from sklearn.metrics import roc_auc_score
 

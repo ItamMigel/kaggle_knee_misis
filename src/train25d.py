@@ -1,8 +1,4 @@
-"""Training, evaluation and OOF collection for the 2.5D study reader (src/reader25d.py).
-
-Port of goodpjw's `train.py` and `oof.py` (goodpjw2008/rsna-knee-2-5d-convnext-reader) with paths,
-labels and the volume loader injected and every setting taken from an explicit cfg.
-"""
+"""Training, evaluation and OOF collection for the 2.5D study reader (src/reader25d.py)."""
 import copy
 import json
 import math
@@ -83,7 +79,7 @@ def _auc_fields(y, p):
 
 def train_fold(cfg, fold, train_ids, val_ids, gold_ids, targets, gold, table, depth_frac, load_volume, crop_fn, out_dir,
                device):
-    """C14: trains one fold (goodpjw loop), writes fold{k}.pt, oof_fold{k}.csv, metrics_fold{k}.jsonl; returns last metrics.
+    """C14: trains one fold, writes fold{k}.pt, oof_fold{k}.csv, metrics_fold{k}.jsonl; returns last metrics.
 
     targets: soft labels DataFrame (index StudyInstanceUID, LABELS) covering train and val ids; the
     val metric uses targets > 0.5. gold: official labels (index StudyInstanceUID, LABELS) covering

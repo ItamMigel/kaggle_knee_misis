@@ -1,4 +1,4 @@
-"""exp-0001 probe kernel: S6fall's component B, then public notebook A v7, then the per-target rank blend
+"""exp-0001 probe kernel: S6fall's component B, then component A, then the per-target rank blend
 (1 - W) * pct(A) + W * pct(S6fall) -> submission.csv.
 
     uv run --project kaggle python kaggle/run_kernel.py --exp exp-0001 --script submit_a_s6fall --accelerator t4 \

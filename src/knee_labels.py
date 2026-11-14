@@ -1,7 +1,4 @@
-"""Label tables for the knee competition: target names, soft report labels, gold labels, CV folds.
-
-Fold logic is ported as-is from goodpjw's `make_labels.py` (goodpjw2008/rsna-knee-2-5d-convnext-reader).
-"""
+"""Label tables for the knee competition: target names, soft report labels, gold labels, CV folds."""
 import re
 
 import numpy as np
@@ -56,11 +53,10 @@ def report_group(text):
 
 
 def make_folds(train_df, n_folds):
-    """GroupKFold over report_group of the weak studies (goodpjw's folds); gold studies get fold -1.
+    """GroupKFold over report_group of the weak studies; gold studies get fold -1.
 
-    No seed: goodpjw permutes the studies with a seed first, but GroupKFold (no shuffle) orders groups
-    by np.unique, i.e. by the sorted report text, so that permutation never changes the folds; it is
-    dropped and the folds are a function of the report texts only (identical to goodpjw's).
+    No seed: GroupKFold without shuffle orders groups by np.unique, so the folds
+    depend only on the report texts, not the input row order.
     """
     if train_df.StudyInstanceUID.duplicated().any():
         raise ValueError("train_df has duplicated StudyInstanceUID")

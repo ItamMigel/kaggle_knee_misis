@@ -1,11 +1,3 @@
-"""Stages of public notebook A v7 (heliosli, LB 0.958): Raptor 384 / 224, R6 compact, stack blend, goodpjw reader.
-
-Source: `this-is-best-public-dataset-new-version-0-9586.ipynb` v7, cells 2-9. The cell code is moved as-is;
-what the move from cells to functions requires (globals -> arguments, `display` -> `print`, `find_mount` /
-`_o_find` -> mount paths from the caller) is done silently, every other deviation is marked `# [port]`.
-Competition constants (weights, slugs, arm, bundle id, deadlines) live in the experiment script.
-"""
-
 import csv
 import glob
 import hashlib
@@ -23,7 +15,7 @@ import pandas as pd
 
 VENDORED = Path(__file__).resolve().parent / "vendored"
 
-# variant -> (vendored script, output stem, name in errors, stage marker); cells 3 / 5
+# variant -> (vendored script, output stem, name in errors, stage marker)
 _RAPTOR = {
     "384": ("raptor384_run.py", "raptor", "Raptor", "RAPTOR"),
     "224": ("raptor224_run.py", "raptor224", "Raptor-224", "RAPTOR224"),
@@ -31,7 +23,7 @@ _RAPTOR = {
 
 
 def _vendored_sha():
-    """vendored/sha256.json: {relative name without .txt: sha256} (equals A's SOURCE_SHA / _PB_SHA)."""
+    """vendored/sha256.json: {relative name without .txt: sha256}."""
     return json.loads((VENDORED / "sha256.json").read_text(encoding="utf-8"))
 
 
@@ -58,12 +50,10 @@ def sha256_files(paths):
 
 
 def run_raptor(variant, work_dir, out_dir, timeout_s):
-    """Cells 3 / 5: run the vendored Raptor 384 or 224 script as its own process -> raptor{,224}_{sub,raw}.csv."""
+    """Run Raptor 384 or 224 as its own process -> raptor{,224}_{sub,raw}.csv."""
     script, stem, name, marker = _RAPTOR[variant]
     work_dir = Path(work_dir)
     work_dir.mkdir(parents=True, exist_ok=True)
-    # [port] A writes the script to /tmp/raptor_run.py / /tmp/raptor224_run.py; here work_dir/raptor{384,224}_run.py
-    # (the scripts use their own path only when /kaggle/working is missing)
     path = materialize(script, work_dir)
     t = time.time()
     rc = subprocess.run([sys.executable, '-u', str(path)], timeout=timeout_s).returncode
@@ -80,14 +70,13 @@ def run_raptor(variant, work_dir, out_dir, timeout_s):
 
 def run_compact_r6(data_dir, code_src, bundle_src, tmp_dir, out_dir, t0, arm, bundle_id, deadline_hours, flip_tta,
                    code_sha, probe_class, w_src):
-    """Cells 6-7: Helios R6 compact model (code/bundle sha checks, pinned wheels, probe_dual.py) -> ours_sub.csv."""
+    """Run R6 with code/bundle SHA checks and pinned wheels -> ours_sub.csv."""
     t_stage = time.time()
     ARM, BUNDLE_ID, DEADLINE_HOURS, FLIP_TTA, CODE_SHA, PROBE_CLASS = arm, bundle_id, deadline_hours, flip_tta, code_sha, probe_class
     T0 = t0   # [blend] the 8.3 h deadline counts from the notebook start (the Raptor stage ran first)
     WORK = Path(out_dir)
     TMP = Path(tmp_dir)
     subprocess.run(['nvidia-smi', '--query-gpu=index,name,memory.total', '--format=csv,noheader'], check=False)
-    # [port] A: df -h /dev/shm /kaggle/working /tmp; here out_dir and the parent of tmp_dir (TMP is created below)
     subprocess.run(['df', '-h', '/dev/shm', str(WORK), str(TMP.parent)], check=False)
     os.environ['HF_HUB_OFFLINE'] = '1'
     os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
@@ -125,8 +114,6 @@ def run_compact_r6(data_dir, code_src, bundle_src, tmp_dir, out_dir, t0, arm, bu
 
     SRC = TMP / 'probe_src'
     SRC.mkdir(exist_ok=True)
-    # [port] A writes its SOURCES dict and checks SOURCE_SHA; here the same 7 files come from vendored/compact/
-    # (materialize checks them against vendored/sha256.json, which equals A's SOURCE_SHA)
     SOURCE_SHA = {}
     for key, digest in sorted(_vendored_sha().items()):
         if key.startswith('compact/'):
@@ -183,14 +170,12 @@ def run_compact_r6(data_dir, code_src, bundle_src, tmp_dir, out_dir, t0, arm, bu
         WORKER_ARGS += ['--trainer-md5', manifest['trainer_md5']]
     if manifest.get('compile'):
         # v3: torch.compile of the fold models' encoders (checked against eager inside the worker; eager fallback, logged)
-        # [port] A's comment on this line is garbled (a W_RAPTOR_C literal pasted into it); the code is unchanged
         WORKER_ARGS += ['--compile']
     if manifest.get('fluid_stacker'):
         # v4b: D2 fluid volume measured on the rendered rows; the classes the json adopts get the stacker's logit
         WORKER_ARGS += ['--fluid-stacker', str(BUNDLE / manifest['fluid_stacker'])]
     if manifest.get('flip_tta') or FLIP_TTA:
         # v4c: every fold model also scores the mirrored windows; the two passes are averaged in logit space (MCL: plain pass)
-        # [d957] FLIP_TTA: this notebook's switch, at the manifest key's position (the R6 manifest predates flip TTA: no flip_tta key)
         WORKER_ARGS += ['--flip-tta']
     if manifest.get('state_stacker'):
         # v4c: the classes the json adopts get b0 + coef . [z, state probabilities, binaries (, lv, miss)]
@@ -201,8 +186,6 @@ def run_compact_r6(data_dir, code_src, bundle_src, tmp_dir, out_dir, t0, arm, bu
         WORKER_ARGS += ['--anchor-weights', str(CODE_SRC / 'anatomy.pt')]
     if manifest['backbone'] == 'ofl_l':
         # the fold models hold only the trained tail; rebuild the frozen part from the public OFL-L weights
-        # [port] A: W_SRC = find_mount('rsna-knee-ofl-ssl-weights', 'weight_parts.json'); here w_src from the caller
-        # (A does not attach that dataset: the R6 bundle is not ofl_l, so the caller passes None)
         assert w_src is not None, 'bundle backbone ofl_l needs the OFL-L weights dataset (rsna-knee-ofl-ssl-weights): pass w_src'
         W_SRC = Path(w_src)
         assert (W_SRC / 'weight_parts.json').is_file(), 'no weight_parts.json in %s' % W_SRC
@@ -219,7 +202,6 @@ def run_compact_r6(data_dir, code_src, bundle_src, tmp_dir, out_dir, t0, arm, bu
         WORKER_ARGS += ['--init', str(BUNDLE / 'model.safetensors'), '--freeze-blocks', str(manifest['freeze_blocks'])]
     print('ASSETS_READY', str(CODE_SRC), str(M_SRC), str(DATA), 'flip_tta', '--flip-tta' in WORKER_ARGS, 'seconds %.1f' % (time.time() - T0), flush=True)
 
-    # ---- cell 7 ----
     deadline = T0 + DEADLINE_HOURS * 3600
     env = dict(os.environ, PYTHONPATH=str(CODE) + os.pathsep + os.environ.get('PYTHONPATH', ''), PYTHONDONTWRITEBYTECODE='1')
     pred = TMP / 'prediction'
@@ -255,7 +237,7 @@ def run_compact_r6(data_dir, code_src, bundle_src, tmp_dir, out_dir, t0, arm, bu
 
 
 def read_stack_inputs(data_dir, work_dir):
-    """Cell 8 (reading part): test ids, submission columns, labels and the five member CSVs as A reads them."""
+    """Read test ids, submission columns, labels and the five member CSVs."""
     DATA, WORK = Path(data_dir), Path(work_dir)
     test_ids = pd.read_csv(DATA / 'test.csv')['StudyInstanceUID'].astype(str).tolist()
     ss = DATA / 'sample_submission.csv'
@@ -266,7 +248,7 @@ def read_stack_inputs(data_dir, work_dir):
         'ours': ours,
         'raptor_raw': pd.read_csv(WORK / 'raptor_raw.csv', dtype={'StudyInstanceUID': str}),
         'raptor_sub': pd.read_csv(WORK / 'raptor_sub.csv', dtype={'StudyInstanceUID': str}),
-        'raptor224_raw': pd.read_csv(WORK / 'raptor224_raw.csv', dtype={'StudyInstanceUID': str}),     # [d957]
+        'raptor224_raw': pd.read_csv(WORK / 'raptor224_raw.csv', dtype={'StudyInstanceUID': str}),
         'raptor224_sub': pd.read_csv(WORK / 'raptor224_sub.csv', dtype={'StudyInstanceUID': str}),
     }
     return test_ids, cols, labels, members
@@ -274,9 +256,9 @@ def read_stack_inputs(data_dir, work_dir):
 
 def blend_stack(test_ids, labels, cols, members, pred_dir, w_raptor, w_ours, w_raptor_c, a224, raptor_seconds,
                 raptor224_seconds, t0):
-    """Cell 8: per-finding percentile-rank blend of Raptor 384/224 and R6 with fail masks -> (submission, receipt, masks)."""
+    """Per-finding percentile-rank blend of Raptor 384/224 and R6 with fail masks -> (submission, receipt, masks)."""
     W_RAPTOR, W_OURS = w_raptor, w_ours
-    A224 = a224   # [d957] share of the Raptor half given to the 224-crop model
+    A224 = a224   # share of the Raptor half given to the 224-crop model
     assert 0.0 < A224 < 1.0
     W_RAPTOR_C = w_raptor_c   # [V2] per-finding Raptor weight (ours = 1 - it); every other finding uses W_RAPTOR
     assert all(0.0 <= w_ <= 1.0 for w_ in (W_RAPTOR, W_OURS) + tuple(W_RAPTOR_C.values())), 'blend weights outside [0, 1]'   # [v3] a per-finding Raptor weight may be exactly 1.0 (ours 0)
@@ -294,8 +276,8 @@ def blend_stack(test_ids, labels, cols, members, pred_dir, w_raptor, w_ours, w_r
     rsub224 = rsub224.set_index('StudyInstanceUID').loc[test_ids, labels]
     n = len(test_ids)
     r384_fail = (raw.values == 0.5).all(axis=1)            # Raptor leaves a failed study at 0.5 in every column
-    r224_fail = (raw224.values == 0.5).all(axis=1)         # [d957] the same for the 224 model
-    rap_fail = r384_fail & r224_fail                        # [d957] the Raptor half is missing only when both failed
+    r224_fail = (raw224.values == 0.5).all(axis=1)   # the same for the 224 model
+    rap_fail = r384_fail & r224_fail   # the Raptor half is missing only when both failed
     scored = set()                                          # ours fills a failed study with the column mean: read what was scored
     for f in pred.glob('worker*/predictions.csv'):
         with open(f, encoding='utf-8') as fh:
@@ -309,7 +291,7 @@ def blend_stack(test_ids, labels, cols, members, pred_dir, w_raptor, w_ours, w_r
     our_fail = np.array([u not in scored for u in test_ids])
     if r384_fail.sum() > 0.03 * n:
         raise RuntimeError('Raptor failed on %d of %d studies' % (r384_fail.sum(), n))
-    if r224_fail.sum() > 0.03 * n:                          # [d957]
+    if r224_fail.sum() > 0.03 * n:
         raise RuntimeError('Raptor-224 failed on %d of %d studies' % (r224_fail.sum(), n))
     if our_fail.sum() > 0.5 * n:                            # [v3] no silent Raptor-only submission under the blend's name
         raise RuntimeError('our stage did not score %d of %d studies (more than 50 %%)' % (our_fail.sum(), n))
@@ -328,8 +310,8 @@ def blend_stack(test_ids, labels, cols, members, pred_dir, w_raptor, w_ours, w_r
     out = np.zeros((n, len(labels)))
     rho_rr, rho_ro, rho_rr224, rho_224_384 = {}, {}, {}, {}
     for j, c in enumerate(labels):
-        r384, r224 = pct_on(raw[c].values, ~r384_fail), pct_on(raw224[c].values, ~r224_fail)   # [d957] each over its own non-failed rows
-        rr = np.where(r384_fail, r224, np.where(r224_fail, r384, (1.0 - A224) * r384 + A224 * r224))   # [d957] NaN only where both failed
+        r384, r224 = pct_on(raw[c].values, ~r384_fail), pct_on(raw224[c].values, ~r224_fail)   # each over its own non-failed rows
+        rr = np.where(r384_fail, r224, np.where(r224_fail, r384, (1.0 - A224) * r384 + A224 * r224))   # NaN only where both failed
         ro = pct_on(ours[c].values, ~our_fail)   # [v3] each over its own non-failed rows
         wr = W_RAPTOR_C.get(c, W_RAPTOR)
         b = wr * rr + (1.0 - wr) * ro
@@ -344,7 +326,7 @@ def blend_stack(test_ids, labels, cols, members, pred_dir, w_raptor, w_ours, w_r
             rho_224_384[c] = round(float(pd.Series(raw224[c].values).corr(pd.Series(raw[c].values), method='spearman')), 4)
     if rho_rr and min(rho_rr.values()) < 0.99:
         raise RuntimeError('Raptor raw dump does not match its own submission ranks: %s' % rho_rr)
-    if rho_rr224 and min(rho_rr224.values()) < 0.99:       # [d957]
+    if rho_rr224 and min(rho_rr224.values()) < 0.99:
         raise RuntimeError('Raptor-224 raw dump does not match its own submission ranks: %s' % rho_rr224)
     sub = pd.DataFrame(out.astype(np.float32), columns=labels)
     sub.insert(0, 'StudyInstanceUID', test_ids)
@@ -365,18 +347,14 @@ def blend_stack(test_ids, labels, cols, members, pred_dir, w_raptor, w_ours, w_r
             int(our_fail.sum()), int(r384_fail.sum()), int(r224_fail.sum()), int((rap_fail & our_fail).sum()), n), flush=True)
     print('NOTEBOOK_COMPLETE', json.dumps(blend), flush=True)
     print(sub.head(), flush=True)
-    # [port] A's cell writes submission.csv / blend_receipt.json here; the caller does. The fail masks are returned
-    # in addition to A's outputs, for save_members.
     return sub, blend, {'raptor384': r384_fail, 'raptor224': r224_fail, 'r6': our_fail}
 
 
 def run_reader(data_dir, reader_dir, out_dir, ckpt_glob):
-    """Cell 9 (inner part): goodpjw2008's 2.5D ConvNeXt reader, infer.py over the fold checkpoints -> out_dir/_own.csv."""
+    """Run the 2.5D ConvNeXt reader over the fold checkpoints -> out_dir/_own.csv."""
     out_dir = Path(out_dir)
     own_src = out_dir / 'own_src'
     own_src.mkdir(parents=True, exist_ok=True)
-    # [port] A writes its _PB_FILES dict and checks _PB_SHA before the 8.2 h check (an error there stops the notebook);
-    # here the 3 files come from vendored/reader/ inside this function, so an error lands in the caller's fallback
     names = sorted(k for k in _vendored_sha() if k.startswith('reader/'))
     for key in names:
         materialize(key, own_src)
@@ -395,7 +373,6 @@ def run_reader(data_dir, reader_dir, out_dir, ckpt_glob):
     # and the leg runs on the image's decoders; a strict install would always end in the fallback
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-index", "--no-deps", "--target", _o_target,
                     "--find-links", _o_assets, "pylibjpeg", "pylibjpeg-libjpeg", "pylibjpeg-openjpeg", "pyjpegls", "python-gdcm"], check=False)
-    # [port] A's timm wheel lookup over every Kaggle input, kept as is (it decides which timm the reader imports)
     _o_timm = [w for pat in ["/kaggle/input/*/timm-*.whl", "/kaggle/input/*/*/timm-*.whl", "/kaggle/input/*/*/*/timm-*.whl"]
                for w in glob.glob(pat)]
     if _o_timm:
@@ -426,7 +403,6 @@ def run_reader(data_dir, reader_dir, out_dir, ckpt_glob):
 def blend_reader(stack, own, labels, own_w, own_w_per_target, n_ckpt, t0):
     """Part B, mode "end": rank-blend the reader into the stack submission per finding, then re-rank -> final DataFrame."""
     # OWN_MODE "T" / "H" and OWN_P33 > 0 are dead branches in A (OWN_MODE = "end", OWN_P33 = 0.0): dropped.
-    # [port] n_ckpt and t0 (taken by the caller before run_reader; A: right before infer.py) only feed A's last print.
     OWN_W, OWN_W_PER_TARGET = own_w, own_w_per_target
     _o_stack = stack
     _o_own = own.set_index("StudyInstanceUID").loc[_o_stack.StudyInstanceUID].reset_index()

@@ -1,9 +1,4 @@
-"""2.5D study reader: slot table, physical 3-slice windows, crop hook, GPU views and the KneeNet model.
-
-Port of goodpjw's `knee.py` (goodpjw2008/rsna-knee-2-5d-convnext-reader). Changes against it:
-the volume loader, the crop and the per-worker rng are injected; windows take physical neighbours
-(`window_slices`); normalisation constants are explicit; gradient checkpointing is a switch.
-"""
+"""2.5D study reader: slot table, physical 3-slice windows, crop hook, GPU views and the KneeNet model."""
 import functools
 import math
 
@@ -20,7 +15,7 @@ from src.knee_volume import canon_px_to_lps
 PLANES = ["Sagittal", "Coronal", "Axial"]
 # slot = plane index + 3 * (1 - fat_suppressed): fat-suppressed planes first
 N_SLOTS = 6
-# goodpjw's share of the stack depth that the window centres spread over
+# Share of the stack depth covered by window centres.
 DEPTH_LO, DEPTH_HI = 0.04, 0.96
 # where a restricted axial stack took its joint position from (joint_depth_fractions)
 DEPTH_SOURCES = ("coronal_fs", "coronal", "stack_middle_no_coronal", "stack_middle_outside")
@@ -203,7 +198,7 @@ def window_slices(pos_mm, centres, gap_mm):
     """int [k, 3] slice indices (below, centre, above): the slices nearest to pos[c] -/+ gap_mm.
 
     The neighbours are forced to differ from the centre by >= 1 index and clipped to [0, n-1], so
-    the result equals goodpjw's (c-1, c, c+1) whenever the slice spacing is >= gap_mm. pos_mm must
+    the result is (c-1, c, c+1) whenever the slice spacing is >= gap_mm. pos_mm must
     be strictly monotonic (either direction); "below" is always the lower index.
     """
     p = np.asarray(pos_mm, np.float64)

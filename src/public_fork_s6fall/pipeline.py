@@ -1,13 +1,3 @@
-"""Public kernel nartaa/rsna-knee-s6fall-solo v2 (LB 0.950) as one function, same contract as public_fork.run_public.
-
-The kernel ("K1") runs unchanged as its own process: component A = Nartaa's 0.949 Raptor (used only for a study B cannot
-read), component B = S6fall (Heliosli's S6 ConvNeXt retrained by Nartaa), final = rank(B) (W_A 0, W_B 1). K1 checks the
-model, anatomy.pt, every code file and A's source against the scored sha256 itself and hard-fails on any component error.
-Here on top: the vendored text's sha256 and the sha256 of every file of our immutable weights copy, before K1 starts.
-Its inputs and their keys are module constants on purpose: they are the identity of the fork (as in public_fork.pipeline).
-Kaggle-only: K1 reads /kaggle/input and writes /kaggle/working itself.
-"""
-
 import hashlib
 import json
 import os
@@ -31,9 +21,6 @@ LABELS = ["ACL", "MCL", "Medial Meniscus", "Lateral Meniscus", "Medial OA", "Lat
           "Effusion", "Synovitis", "Baker's", "Contusion", "Fracture"]
 # ---- inputs (ctx.mounts keys) ----
 DATA_MOUNT = "rsna-knee-abnormality-detection"
-# our immutable copy of the inference files of nartaa/rsna-knee-s6fall-weights v5 (that dataset was re-versioned v1->v5;
-# the checkpoint and code_manifest.json are those of the scored v2 run: MANIFEST b66c574b..., model 0c7297d5...).
-# Same slug as Nartaa's: K1's find_mount looks for datasets/*/rsna-knee-s6fall-weights.
 WEIGHTS_MOUNT = "bebra3222/rsna-knee-s6fall-weights"
 WEIGHTS_SHA = {
     "E_prior_s42_fall.pt": "0c7297d58f061ab4e5d7c55046f51fa3e8934928046f0647a0c7854e98371c12",
@@ -45,7 +32,7 @@ WEIGHTS_SHA = {
     "README.md": "04de798cfe142110322212be0af141044003039e0a8c3493a258e701ce0f6a75",
 }
 RAPTOR_W_MOUNT = "nartaa/rsna-knee-publication-swa-weights-20261007"     # component A (fallback rows only)
-CODE_MOUNT = "heliosli/rsna-orthofoundation-fold0-epoch7-20261004"      # anatomy.pt + Heliosli's code (B)
+CODE_MOUNT = "heliosli/rsna-orthofoundation-fold0-epoch7-20261004"      # anatomy.pt and preprocessing modules
 
 
 def materialize_k1(dest_dir):

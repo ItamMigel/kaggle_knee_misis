@@ -1,11 +1,3 @@
-"""Public notebook A v7 end to end as one function (the body of exps/exp-0001/submit_public.py; exp-0004 calls it).
-
-A's constants (cells 3/5, 6, 8, 9) and the keys of the five inputs are module constants here on purpose: they are
-the identity of the fork, like vendored/sha256.json, so run_public(ctx, t0) gives A v7 exactly (lead-approved
-exception to "nothing hardcoded in src/", exp-0001 D5). Kaggle-only: CUDA, /kaggle/working, and the vendored
-Raptor scripts look up their weights and the test data under /kaggle/input themselves.
-"""
-
 import glob
 import importlib.metadata
 import json
@@ -21,12 +13,11 @@ import pandas as pd
 
 from src.public_fork import stages
 
-# ---- A's constants (cells 3/5, 6, 8, 9) ----
-RAPTOR_TIMEOUT_S = 2 * 3600                       # cells 3 / 5
-RAPTOR_WORK = Path("/tmp")                        # cells 2 / 4 wrote the scripts to /tmp
-RAPTOR384_CKPT = "raptor_ft_alldata_t16_blendjev_oai_d96_r384_swa.pt"        # cell 2 _weight_name
-RAPTOR224_CKPT = "raptor_ft_alldata_t16_blendjev_oai_d96_c08_r224_swa.pt"    # cell 4 _weight_name
-ARM = "E_lrprior"                                 # cell 6
+RAPTOR_TIMEOUT_S = 2 * 3600
+RAPTOR_WORK = Path("/tmp")
+RAPTOR384_CKPT = "raptor_ft_alldata_t16_blendjev_oai_d96_r384_swa.pt"
+RAPTOR224_CKPT = "raptor_ft_alldata_t16_blendjev_oai_d96_c08_r224_swa.pt"
+ARM = "E_lrprior"
 BUNDLE_ID = "fe055406fad6a12f"
 DEADLINE_HOURS = 8.3
 FLIP_TTA = True
@@ -41,10 +32,10 @@ CODE_SHA = {
     "dicom_geometry.py": "12aa501f9704aef15b7a3bbd560951acb6d95b89b7de0141d6cf89fc3f051ab1",
     "common.py": "8283fa1f8e7ef8cfacbba52df1715636be3c9ad688e39912814e7d5bcf57105f",
 }
-W_RAPTOR, W_OURS = 0.5, 0.5                       # cell 8
+W_RAPTOR, W_OURS = 0.5, 0.5
 A224 = 0.35
 W_RAPTOR_C = {"Medial OA": 0.5, "Lateral OA": 0.15, "PF OA": 0.65, "Synovitis": 0.85, "Baker's": 0.30}
-PART_B_CUTOFF_HOURS = 8.2                         # cell 9
+PART_B_CUTOFF_HOURS = 8.2
 OWN_W = 0.15
 OWN_GLOB = "cnxt_v0_fold[012].pt"
 OWN_W_PER_TARGET = {"Baker's": 0.035, "Contusion": 0.03, "Medial OA": 0.025, "ACL": 0.025, "Medial Meniscus": 0.02,
@@ -53,20 +44,12 @@ OWN_W_PER_TARGET = {"Baker's": 0.035, "Contusion": 0.03, "Medial OA": 0.025, "AC
 # ---- the five inputs (ctx.mounts keys) ----
 DATA_MOUNT = "rsna-knee-abnormality-detection"
 READER_MOUNT = "goodpjw2008/rsna-knee-2-5d-convnext-reader"
-# the -w1 copy: A mounts heliosli/rsna-knee-r6-frozen-fe055406, whose v2 (14.10) holds R7 under the same file
-# names; -w1 is byte-identical to its v1 (manifest sha256 6508ce69...)
 BUNDLE_MOUNT = "heliosli/rsna-knee-r6-frozen-fe055406-w1"
 RAPTOR_W_MOUNT = "nartaa/rsna-knee-publication-swa-weights-20261007"
 CODE_MOUNT = "heliosli/rsna-orthofoundation-fold0-epoch7-20261004"
 
 
 def run_public(ctx, t0):
-    """A v7 public pipeline in one call: Raptor384 → Raptor224 → R6 → stack blend → reader (Part B) → submission.csv + members.
-
-    t0: the caller's script start (A: NB_T0, start of cell 3); the R6 deadline (8.3 h) and the Part B cut (8.2 h)
-    count from it. Returns (final_sub, members, masks, timings, part_b): the final submission.csv, the dicts given
-    to save_members, timings.json and fallbacks.json["part_b"].
-    """
     if not (Path("/kaggle/input").is_dir() and ctx.output_dir == Path("/kaggle/working")):
         raise RuntimeError(
             "submit_public.py runs only inside a Kaggle kernel (CUDA, /kaggle/working; the vendored Raptor "
@@ -75,14 +58,13 @@ def run_public(ctx, t0):
         )
 
     # All mounts resolved up front: a missing attachment fails here, before any GPU time is spent
-    # (A finds them lazily per stage; its Part B would fall back on a missing reader dataset).
     DATA = ctx.mounts[DATA_MOUNT]
     READER_DIR = ctx.mounts[READER_MOUNT]
     BUNDLE_SRC = ctx.mounts[BUNDLE_MOUNT]
     RAPTOR_W = ctx.mounts[RAPTOR_W_MOUNT]
     CODE_SRC = ctx.mounts[CODE_MOUNT]
     WORK = ctx.output_dir
-    READER_CKPTS = sorted(c for g in OWN_GLOB.split() for c in glob.glob(str(READER_DIR) + "/" + g))   # as cell 9's _o_ck
+    READER_CKPTS = sorted(c for g in OWN_GLOB.split() for c in glob.glob(str(READER_DIR) + "/" + g))
 
     gpus = subprocess.run(["nvidia-smi", "--query-gpu=index,name,memory.total", "--format=csv,noheader"],
                           capture_output=True, text=True, check=True).stdout.strip().splitlines()
@@ -95,7 +77,7 @@ def run_public(ctx, t0):
     r224 = stages.run_raptor("224", RAPTOR_WORK, WORK, RAPTOR_TIMEOUT_S)
     timings["raptor224"] = r224["seconds"]
 
-    TMP = (Path("/kaggle/temp") if Path("/kaggle/temp").is_dir() else Path("/tmp")) / "probe"   # cell 6
+    TMP = (Path("/kaggle/temp") if Path("/kaggle/temp").is_dir() else Path("/tmp")) / "probe"
     r6 = stages.run_compact_r6(DATA, CODE_SRC, BUNDLE_SRC, TMP, WORK, t0, ARM, BUNDLE_ID, DEADLINE_HOURS, FLIP_TTA,
                                CODE_SHA, PROBE_CLASS, None)
     timings["r6"] = r6["seconds"]
@@ -108,7 +90,6 @@ def run_public(ctx, t0):
     (WORK / "blend_receipt.json").write_text(json.dumps(blend, indent=1))
     timings["blend_stack"] = time.time() - t
 
-    # ---- Part B (cell 9): A's semantics, plus a loud line and fallbacks.json (approved exception for this fork) ----
     t = time.time()
     pub, bak = WORK / "submission.csv", WORK / "_public_stack.csv"
     own = None

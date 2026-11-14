@@ -1,5 +1,5 @@
 """exp-0001: submit_a_s6fall.py (kernel e775, public 0.958) with W_S6FALL 0.40 instead of 0.10 (lead 21.10; w0.30 = 6000
-passed w0.20 = f1c6 on static teams), nothing else changed: S6fall's component B, then public notebook A v7, then the
+passed w0.20 = f1c6 on static teams), nothing else changed: S6fall's component B, then component A, then the
 per-target rank blend (1 - W) * pct(A) + W * pct(S6fall) -> submission.csv.
 
     uv run --project kaggle python kaggle/run_kernel.py --exp exp-0001 --script submit_a_s6fall_w40 --accelerator t4 \

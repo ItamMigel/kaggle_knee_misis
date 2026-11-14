@@ -129,7 +129,7 @@ def _shared_cfg(models):
 def load_models(ckpt_paths, device):
     """C17: [(KneeNet, cfg)] from {"model", "cfg"} checkpoints: tagless backbone, pretrained=False, strict, eval.
 
-    The backbone is built from cfg backbone without its pretrained tag (as goodpjw's infer.py), so no
+    The backbone is built from cfg backbone without its pretrained tag, so no
     weights are fetched; all models must share the SHARED_KEYS of their cfgs.
     """
     ckpt_paths = [Path(p) for p in ckpt_paths]

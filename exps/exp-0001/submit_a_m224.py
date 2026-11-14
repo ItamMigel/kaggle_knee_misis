@@ -1,4 +1,4 @@
-"""exp-0001: public notebook A v7 with Raptor 224 under the anatomical mirror TTA that A already applies to Raptor 384
+"""exp-0001: component A with Raptor 224 under the anatomical mirror TTA that A already applies to Raptor 384
 (src.public_fork.mirror224, lead 18.10). MIRROR224 False = A v7 itself (pipeline.run_public, byte-identical to ffe2).
 
     uv run --project kaggle python kaggle/run_kernel.py --exp exp-0001 --script submit_a_m224 --accelerator t4 \

@@ -1,6 +1,6 @@
 """exp-0001: submit_a_s6fall.py (kernel e775, public 0.958) with W_S6FALL 0.50 instead of 0.10 (lead 21.10; validated
 alongside w0.40 and submitted only if w0.40 passes 6000 on the static-team detector), nothing else changed: S6fall's
-component B, then public notebook A v7, then the per-target rank blend (1 - W) * pct(A) + W * pct(S6fall) -> submission.csv.
+component B, then component A, then the per-target rank blend (1 - W) * pct(A) + W * pct(S6fall) -> submission.csv.
 
     uv run --project kaggle python kaggle/run_kernel.py --exp exp-0001 --script submit_a_s6fall_w50 --accelerator t4 \
       --docker-image gcr.io/kaggle-private-byod/python@sha256:2757e0c7d1e0a9cb43da657b97e223c321a98f5014bdf64f44f2f6b083ad2b2f \
